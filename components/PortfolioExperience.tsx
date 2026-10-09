@@ -203,7 +203,7 @@ export default function PortfolioExperience() {
         </section>
 
         <div className="marquee" aria-hidden="true"><div className="marquee-track">
-          {[0, 1].map((group) => <div className="marquee-group" key={group}><span>DESIGN</span><SparkIcon /><span>DEVELOP</span><SparkIcon /><span>CREATE</span><SparkIcon /><span>REPEAT</span><SparkIcon /></div>)}
+          {[0, 1, 2, 3].map((group) => <div className="marquee-group" key={group}><span>DESIGN</span><SparkIcon /><span>DEVELOP</span><SparkIcon /><span>CREATE</span><SparkIcon /><span>REPEAT</span><SparkIcon /></div>)}
         </div></div>
 
         <section className="about section-wrap" id="about">
@@ -250,7 +250,7 @@ export default function PortfolioExperience() {
             {projects.map((project, index) => (
               <motion.article className={`project-row project-${project.className} ${index % 2 ? "project-reverse" : ""}`} key={project.number} initial={{ opacity: 0, y: 70 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}>
                 <div className="project-art-wrap"><ProjectArtwork variant={project.className} /><span className="project-count">{project.number}</span></div>
-                <div className="project-copy"><p className="eyebrow">{project.type}</p><h3>{project.title.split("\n").map((line) => <span key={line}>{line}</span>)}</h3><p>{project.description}</p><div className="tag-list">{project.technologies.map((technology) => <span key={technology}>{technology}</span>)}</div><Link href={`/projects/${project.slug}`} className="case-link" aria-label={`View ${project.title.replace("\n", " ")} case study`}>Case study <ArrowIcon /></Link></div>
+                <div className="project-copy"><p className="eyebrow">{project.type}</p><h3>{project.title.split("\n").map((line) => <span key={line}>{line}</span>)}</h3><p>{project.description}</p><div className="tag-list">{project.technologies.map((technology) => <span key={technology}>{technology}</span>)}</div><div className="project-links"><Link href={`/projects/${project.slug}`} className="case-link" aria-label={`View ${project.title.replace("\n", " ")} case study`}>Case study <ArrowIcon /></Link>{project.liveUrl && <a href={project.liveUrl} className="case-link case-link-live" target="_blank" rel="noopener noreferrer" aria-label={`Open ${project.title.replace("\n", " ")} live website in a new tab`}>Live site <span aria-hidden="true">↗</span></a>}</div></div>
               </motion.article>
             ))}
           </div>
@@ -265,7 +265,7 @@ export default function PortfolioExperience() {
           <div className="contact-topline"><p className="eyebrow">04 / Let&apos;s make something</p><span><i /> Available for opportunities</span></div>
           <div className="contact-star"><SparkIcon /></div>
           <h2>HAVE AN IDEA?<br /><span>LET&apos;S BUILD IT.</span></h2>
-          <div className="contact-bottom"><p>I&apos;m open to internships, Collaborations, And meaningful frontend projects.</p><a className="contact-button" href="mailto:your-email@example.com">Start a conversation <ArrowIcon /></a></div>
+          <div className="contact-bottom"><p>I&apos;m open to internships, Collaborations, And meaningful frontend projects.</p><a className="contact-button" href="https://www.facebook.com/sophymengkorng168">Start a conversation <ArrowIcon /></a></div>
           <div className="contact-orbit orbit-contact-one" /><div className="contact-orbit orbit-contact-two" />
         </motion.div></section>
       </main>

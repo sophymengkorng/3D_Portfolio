@@ -6,6 +6,7 @@ export type Project = {
   description: string;
   technologies: string[];
   className: "commerce" | "portfolio" | "api";
+  liveUrl?: string;
   challenge: string;
   approach: string;
   outcome: string;
@@ -21,6 +22,7 @@ export const projects: Project[] = [
     description: "A responsive shopping experience built around clear product discovery, Intuitive browsing, And a frictionless interface.",
     technologies: ["Next.js", "Bootstrap", "Responsive UI"],
     className: "commerce",
+    liveUrl: "https://genzpokemonstore.vercel.app/",
     challenge: "Make a product-heavy shopping journey feel simple, Fast, And confident on every screen size.",
     approach: "The interface uses a clear visual hierarchy, Focused product cards, And a mobile-first layout that keeps the path from discovery to checkout easy to follow.",
     outcome: "A polished storefront concept with reusable components, Responsive behavior, And a focused purchase journey.",

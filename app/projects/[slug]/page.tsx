@@ -42,7 +42,10 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         <h1>{project.title.split("\n").map((line) => <span key={line}>{line}</span>)}</h1>
         <div className="case-summary">
           <p>{project.description}</p>
-          <div className="tag-list">{project.technologies.map((technology) => <span key={technology}>{technology}</span>)}</div>
+          <div className="case-summary-actions">
+            <div className="tag-list">{project.technologies.map((technology) => <span key={technology}>{technology}</span>)}</div>
+            {project.liveUrl && <a className="case-live-link" href={project.liveUrl} target="_blank" rel="noopener noreferrer">Visit live website <span aria-hidden="true">↗</span></a>}
+          </div>
         </div>
         <span className="case-number" aria-hidden="true">{project.number}</span>
       </section>
