@@ -2,42 +2,14 @@
 
 import { useRef } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { motion } from "motion/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
+import { projects } from "@/lib/projects";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
-
-const projects = [
-  {
-    number: "01",
-    type: "COMMERCE / FRONTEND",
-    title: "E-commerce\nWebsite",
-    description:
-      "A responsive shopping experience built around clear product discovery, Intuitive browsing, And a frictionless interface.",
-    technologies: ["Next.js", "Bootstrap", "Responsive UI"],
-    className: "commerce",
-  },
-  {
-    number: "02",
-    type: "IDENTITY / WEB",
-    title: "Personal\nPortfolio",
-    description:
-      "A focused personal space for sharing development skills, Selected projects, And the thinking behind the work.",
-    technologies: ["TypeScript", "CSS", "Motion"],
-    className: "portfolio",
-  },
-  {
-    number: "03",
-    type: "DATA / EXPERIENCE",
-    title: "API\nIntegration",
-    description:
-      "A dynamic frontend that turns remote data into an organized, Useful, And easy-to-understand product experience.",
-    technologies: ["REST API", "React", "Dynamic Data"],
-    className: "api",
-  },
-];
 
 const skills = ["HTML", "CSS", "JAVASCRIPT", "TYPESCRIPT", "REACT", "NEXT.JS", "BOOTSTRAP", "GIT"];
 
@@ -108,15 +80,49 @@ export default function PortfolioExperience() {
       .from(".hero h1", { y: 45, opacity: 0, duration: 0.8 }, "-=0.65")
       .from(".hero-bottom", { y: 18, opacity: 0, duration: 0.6 }, "-=0.35");
 
-    gsap.to(".scene-rig", {
-      rotationY: 80,
-      rotationX: -10,
-      z: -80,
-      ease: "none",
-      scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: 0.6 },
+    const media = gsap.matchMedia();
+
+    media.add("(min-width: 901px)", () => {
+      gsap.to(".scene-rig", {
+        rotationY: 68,
+        rotationX: -8,
+        z: -64,
+        force3D: true,
+        ease: "none",
+        scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: 1.15 },
+      });
+
+      gsap.utils.toArray<HTMLElement>(".project-art-wrap").forEach((art, index) => {
+        gsap.fromTo(art,
+          { rotationX: 3, rotationY: index % 2 ? 5 : -5, y: 22 },
+          {
+            rotationX: -2,
+            rotationY: index % 2 ? -3 : 3,
+            y: -18,
+            force3D: true,
+            ease: "none",
+            scrollTrigger: { trigger: art, start: "top bottom", end: "bottom top", scrub: 1.25 },
+          },
+        );
+      });
     });
-    gsap.to(".scene-core", { rotationX: 360, rotationY: -360, duration: 32, repeat: -1, ease: "none" });
-    gsap.to(".scene-ring-a", { rotationZ: 360, rotationY: 55, duration: 42, repeat: -1, ease: "none" });
+
+    const coreSpin = gsap.to(".scene-core", { rotationX: 360, rotationY: -360, duration: 38, repeat: -1, ease: "none", force3D: true });
+    const ringSpin = gsap.to(".scene-ring-a", { rotationZ: 360, rotationY: 55, duration: 48, repeat: -1, ease: "none", force3D: true });
+    ScrollTrigger.create({
+      trigger: ".hero",
+      start: "top bottom",
+      end: "bottom top",
+      onToggle: (self) => {
+        if (self.isActive) {
+          coreSpin.play();
+          ringSpin.play();
+        } else {
+          coreSpin.pause();
+          ringSpin.pause();
+        }
+      },
+    });
 
     const sectionHeadings = gsap.utils.toArray<HTMLElement>(".section-heading");
     sectionHeadings.forEach((heading) => {
@@ -147,6 +153,8 @@ export default function PortfolioExperience() {
         repeat: -1, yoyo: true, ease: "sine.inOut",
       });
     }
+
+    return () => media.revert();
   }, { scope: root });
 
   return (
@@ -240,9 +248,9 @@ export default function PortfolioExperience() {
           <div className="section-heading work-heading"><p className="eyebrow">02 / Selected work</p><h2>Projects built with<br /><span>purpose & curiosity.</span></h2><p className="work-intro">A small selection of interfaces and experiments that shaped how I design and build.</p></div>
           <div className="project-list">
             {projects.map((project, index) => (
-              <motion.article className={`project-row ${index % 2 ? "project-reverse" : ""}`} key={project.number} initial={{ opacity: 0, y: 70 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}>
+              <motion.article className={`project-row project-${project.className} ${index % 2 ? "project-reverse" : ""}`} key={project.number} initial={{ opacity: 0, y: 70 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}>
                 <div className="project-art-wrap"><ProjectArtwork variant={project.className} /><span className="project-count">{project.number}</span></div>
-                <div className="project-copy"><p className="eyebrow">{project.type}</p><h3>{project.title.split("\n").map((line) => <span key={line}>{line}</span>)}</h3><p>{project.description}</p><div className="tag-list">{project.technologies.map((technology) => <span key={technology}>{technology}</span>)}</div><button type="button" className="case-link" aria-label={`${project.title.replace("\n", " ")} project details`}>Case study <ArrowIcon /></button></div>
+                <div className="project-copy"><p className="eyebrow">{project.type}</p><h3>{project.title.split("\n").map((line) => <span key={line}>{line}</span>)}</h3><p>{project.description}</p><div className="tag-list">{project.technologies.map((technology) => <span key={technology}>{technology}</span>)}</div><Link href={`/projects/${project.slug}`} className="case-link" aria-label={`View ${project.title.replace("\n", " ")} case study`}>Case study <ArrowIcon /></Link></div>
               </motion.article>
             ))}
           </div>
