@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProject, projects } from "@/lib/projects";
+import { absoluteUrl, site, siteUrl } from "@/lib/site";
 
 type ProjectPageProps = {
   params: Promise<{ slug: string }>;
@@ -11,13 +12,33 @@ export function generateStaticParams() {
   return projects.map(({ slug }) => ({ slug }));
 }
 
+const plainTitle = (title: string) => title.replace(/\n/g, " ");
+
 export async function generateMetadata({ params }: ProjectPageProps): Promise<Metadata> {
   const project = getProject((await params).slug);
   if (!project) return {};
 
+  const title = plainTitle(project.title);
+  const path = `/projects/${project.slug}`;
+
   return {
-    title: `${project.title.replace("\n", " ")} | Sophy Mengkorng`,
+    title,
     description: project.description,
+    keywords: [...project.technologies, title, site.author, "case study"],
+    alternates: { canonical: path },
+    openGraph: {
+      type: "article",
+      url: absoluteUrl(path),
+      siteName: site.name,
+      locale: site.locale,
+      title: `${title} — ${site.author}`,
+      description: project.description,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${title} — ${site.author}`,
+      description: project.description,
+    },
   };
 }
 
@@ -29,8 +50,41 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
   const project = getProject((await params).slug);
   if (!project) notFound();
 
+  const title = plainTitle(project.title);
+  const path = `/projects/${project.slug}`;
+
+  const schema = [
+    {
+      "@context": "https://schema.org",
+      "@type": "CreativeWork",
+      name: title,
+      headline: title,
+      description: project.description,
+      url: absoluteUrl(path),
+      inLanguage: "en",
+      keywords: project.technologies.join(", "),
+      author: { "@type": "Person", name: site.author, url: siteUrl },
+      creator: { "@type": "Person", name: site.author, url: siteUrl },
+      ...(project.liveUrl ? { sameAs: project.liveUrl } : {}),
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: siteUrl },
+        { "@type": "ListItem", position: 2, name: "Work", item: absoluteUrl("/#work") },
+        { "@type": "ListItem", position: 3, name: title, item: absoluteUrl(path) },
+      ],
+    },
+  ];
+
   return (
     <main className={`case-page case-page-${project.className}`}>
+      <script
+        type="application/ld+json"
+        // Static project data from lib/projects.ts — no user input is interpolated here.
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      />
       <header className="case-header">
         <Link className="brand" href="/" aria-label="Back to portfolio">KORN<span>G</span></Link>
         <Link className="case-back" href="/#work">Back to work <span>↙</span></Link>

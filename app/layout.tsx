@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Poppins } from "next/font/google";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./globals.css";
+import { site, siteUrl } from "@/lib/site";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -11,9 +12,102 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "Sophy Mengkorng | Creative Frontend Developer",
-  description:
-    "The portfolio of Sophy Mengkorng, A frontend developer and MIS student based in Phnom Penh.",
+  metadataBase: new URL(siteUrl),
+
+  title: {
+    default: site.title,
+    template: `%s | ${site.author}`,
+  },
+
+  description: site.description,
+  applicationName: site.name,
+  keywords: [...site.keywords],
+  authors: [{ name: site.author, url: siteUrl }],
+  creator: site.author,
+  publisher: site.author,
+  category: "technology",
+
+  alternates: {
+    canonical: "/",
+  },
+
+  openGraph: {
+    type: "website",
+    locale: site.locale,
+    url: siteUrl,
+    siteName: site.name,
+    title: site.title,
+    description:
+      "Explore my frontend development projects, technical skills, and creative web experiences.",
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: site.title,
+    description:
+      "Explore the projects and skills of Sophy Mengkorng, a frontend developer based in Cambodia.",
+  },
+
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
+
+  formatDetection: {
+    telephone: false,
+    email: false,
+    address: false,
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#09080c",
+  colorScheme: "dark",
+};
+
+const personSchema = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: site.author,
+  url: siteUrl,
+  image: `${siteUrl}/profile.png`,
+  jobTitle: site.jobTitle,
+  description: site.description,
+  sameAs: [...site.socials],
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: site.city,
+    addressCountry: "KH",
+  },
+  knowsAbout: [
+    "Frontend Development",
+    "React",
+    "Next.js",
+    "TypeScript",
+    "UI Design",
+    "Responsive Web Design",
+  ],
+  alumniOf: {
+    "@type": "EducationalOrganization",
+    name: "Management Information Systems",
+  },
+};
+
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: site.name,
+  url: siteUrl,
+  inLanguage: "en",
+  description: site.description,
+  author: { "@type": "Person", name: site.author, url: siteUrl },
 };
 
 export default function RootLayout({
@@ -23,7 +117,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={poppins.variable}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <script
+          type="application/ld+json"
+          // Static, build-time constants — no user input is interpolated here.
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify([personSchema, websiteSchema]),
+          }}
+        />
+      </body>
     </html>
   );
 }
