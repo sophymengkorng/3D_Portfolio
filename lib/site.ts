@@ -1,0 +1,35 @@
+export const siteUrl = "https://korngportfolio.vercel.app";
+
+/** Bump when page content changes materially; keeps sitemap.xml statically cacheable. */
+export const contentUpdatedAt = "2026-10-09";
+
+export const site = {
+  url: siteUrl,
+  name: "Sophy Mengkorng Portfolio",
+  shortName: "KORNG",
+  author: "Sophy Mengkorng",
+  jobTitle: "Frontend Developer",
+  title: "Sophy Mengkorng | Creative Frontend Developer",
+  description:
+    "Explore the portfolio of Sophy Mengkorng, a creative frontend developer and MIS student based in Phnom Penh, Cambodia. Discover my projects, skills, and experience.",
+  locale: "en_US",
+  city: "Phnom Penh",
+  country: "Cambodia",
+  socials: ["https://www.facebook.com/sophymengkorng168"],
+  keywords: [
+    "Sophy Mengkorng",
+    "frontend developer",
+    "frontend developer Cambodia",
+    "web developer Phnom Penh",
+    "React developer",
+    "Next.js developer",
+    "TypeScript developer",
+    "UI design",
+    "portfolio",
+    "Management Information Systems",
+  ],
+} as const;
+
+export function absoluteUrl(path = "/") {
+  return new URL(path, siteUrl).toString();
+}
