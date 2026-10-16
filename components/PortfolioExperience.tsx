@@ -105,6 +105,75 @@ export default function PortfolioExperience() {
           },
         );
       });
+
+      gsap.to(".scene-core-scroll", {
+        rotationX: -70,
+        rotationY: 210,
+        force3D: true,
+        ease: "none",
+        scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: 1.15 },
+      });
+
+      const hero = root.current?.querySelector<HTMLElement>(".hero");
+      const interaction = root.current?.querySelector<HTMLElement>(".scene-core-interaction");
+      if (!hero || !interaction) return;
+
+      const rotateX = gsap.quickTo(interaction, "rotationX", { duration: 0.55, ease: "power3.out" });
+      const rotateY = gsap.quickTo(interaction, "rotationY", { duration: 0.55, ease: "power3.out" });
+
+      const drag = {
+        active: false,
+        pointerId: -1,
+        lastX: 0,
+        lastY: 0,
+        rotationX: 0,
+        rotationY: 0,
+      };
+
+      const handlePointerMove = (event: PointerEvent) => {
+        if (!drag.active || event.pointerId !== drag.pointerId) return;
+
+        const deltaX = event.clientX - drag.lastX;
+        const deltaY = event.clientY - drag.lastY;
+        drag.lastX = event.clientX;
+        drag.lastY = event.clientY;
+        drag.rotationX = gsap.utils.clamp(-65, 65, drag.rotationX - deltaY * 0.38);
+        drag.rotationY += deltaX * 0.48;
+        rotateX(drag.rotationX);
+        rotateY(drag.rotationY);
+      };
+
+      const handlePointerDown = (event: PointerEvent) => {
+        if (event.button !== 0 || (event.target as HTMLElement).closest("a, button")) return;
+        event.preventDefault();
+        drag.active = true;
+        drag.pointerId = event.pointerId;
+        drag.lastX = event.clientX;
+        drag.lastY = event.clientY;
+        hero.classList.add("is-cube-dragging");
+        hero.setPointerCapture(event.pointerId);
+      };
+
+      const handlePointerUp = (event: PointerEvent) => {
+        if (!drag.active || event.pointerId !== drag.pointerId) return;
+        drag.active = false;
+        drag.pointerId = -1;
+        hero.classList.remove("is-cube-dragging");
+        if (hero.hasPointerCapture(event.pointerId)) hero.releasePointerCapture(event.pointerId);
+      };
+
+      hero.addEventListener("pointerdown", handlePointerDown);
+      hero.addEventListener("pointermove", handlePointerMove, { passive: true });
+      hero.addEventListener("pointerup", handlePointerUp);
+      hero.addEventListener("pointercancel", handlePointerUp);
+
+      return () => {
+        hero.removeEventListener("pointerdown", handlePointerDown);
+        hero.removeEventListener("pointermove", handlePointerMove);
+        hero.removeEventListener("pointerup", handlePointerUp);
+        hero.removeEventListener("pointercancel", handlePointerUp);
+        hero.classList.remove("is-cube-dragging");
+      };
     });
 
     const coreSpin = gsap.to(".scene-core", { rotationX: 360, rotationY: -360, duration: 38, repeat: -1, ease: "none", force3D: true });
@@ -173,10 +242,14 @@ export default function PortfolioExperience() {
             <div className="scene-rig">
               <div className="scene-ring scene-ring-a" />
               <div className="scene-ring scene-ring-b" />
-              <div className="scene-core">
-                <span className="cube-face face-front">KORNG</span><span className="cube-face face-back">UI</span>
-                <span className="cube-face face-right">01</span><span className="cube-face face-left">DEV</span>
-                <span className="cube-face face-top">WEB</span><span className="cube-face face-bottom">2026</span>
+              <div className="scene-core-scroll">
+                <div className="scene-core-interaction">
+                  <div className="scene-core">
+                    <span className="cube-face face-front">KORNG</span><span className="cube-face face-back">UI</span>
+                    <span className="cube-face face-right">01</span><span className="cube-face face-left">DEV</span>
+                    <span className="cube-face face-top">WEB</span><span className="cube-face face-bottom">2026</span>
+                  </div>
+                </div>
               </div>
               <div className="scene-panel scene-panel-a"><small>BUILD / CREATE</small><strong>FRONTEND</strong><i /></div>
               <div className="scene-panel scene-panel-b"><span>03</span><b>IDEAS → INTERFACES</b></div>
@@ -218,7 +291,7 @@ export default function PortfolioExperience() {
                       <div className="portrait-halo" />
                       <Image
                         className="profile-image"
-                        src="/profilev2.jpg"
+                        src="/profile_v2.png"
                         alt="Portrait of Sophy Mengkorng"
                         fill
                         sizes="(max-width: 900px) 90vw, 38vw"
@@ -237,7 +310,7 @@ export default function PortfolioExperience() {
             </motion.div>
             <motion.div className="about-copy" {...reveal} transition={{ ...reveal.transition, delay: 0.12 }}>
               <span className="big-number">02</span>
-              <p className="lead-copy">I&apos;m a Management Information Systems student who enjoys the space where <strong>technology, Design, And people</strong> meet.</p>
+              <p className="lead-copy">I&apos;m a Management Information Systems student who enjoys the space where <strong>Technology, Design, And people</strong> meet.</p>
               <p>My focus is frontend engineering and UI design—creating digital experiences that feel useful, Visually engaging, And considered at every screen size. I&apos;m always learning, Solving, And refining.</p>
               <div className="about-meta"><div><small>BASED IN</small><span>Phnom Penh, Cambodia</span></div><div><small>FOCUS</small><span>Frontend & UI Design</span></div></div>
             </motion.div>
@@ -250,7 +323,8 @@ export default function PortfolioExperience() {
             {projects.map((project, index) => (
               <motion.article className={`project-row project-${project.className} ${index % 2 ? "project-reverse" : ""}`} key={project.number} initial={{ opacity: 0, y: 70 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}>
                 <div className="project-art-wrap"><ProjectArtwork variant={project.className} /><span className="project-count">{project.number}</span></div>
-                <div className="project-copy"><p className="eyebrow">{project.type}</p><h3>{project.title.split("\n").map((line) => <span key={line}>{line}</span>)}</h3><p>{project.description}</p><div className="tag-list">{project.technologies.map((technology) => <span key={technology}>{technology}</span>)}</div><div className="project-links"><Link href={`/projects/${project.slug}`} className="case-link" aria-label={`View ${project.title.replace("\n", " ")} case study`}>Case study <ArrowIcon /></Link>{project.liveUrl && <a href={project.liveUrl} className="case-link case-link-live" target="_blank" rel="noopener noreferrer" aria-label={`Open ${project.title.replace("\n", " ")} live website in a new tab`}>Live site <span aria-hidden="true">↗</span></a>}</div></div>           </motion.article>
+                <div className="project-copy"><p className="eyebrow">{project.type}</p><h3>{project.title.split("\n").map((line) => <span key={line}>{line}</span>)}</h3><p>{project.description}</p><div className="tag-list">{project.technologies.map((technology) => <span key={technology}>{technology}</span>)}</div><div className="project-links"><Link href={`/projects/${project.slug}`} className="case-link" aria-label={`View ${project.title.replace("\n", " ")} case study`}>Case study <ArrowIcon /></Link>{project.liveUrl && <a href={project.liveUrl} className="case-link case-link-live" target="_blank" rel="noopener noreferrer" aria-label={`Open ${project.title.replace("\n", " ")} live website in a new tab`}>View Project <span aria-hidden="true">↗</span></a>}</div></div>
+              </motion.article>
             ))}
           </div>
         </section>
