@@ -2,10 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProject, projects } from "@/lib/projects";
+import { siteConfig } from "@/lib/site";
 
 type ProjectPageProps = {
   params: Promise<{ slug: string }>;
 };
+
+export const instant = false;
 
 export function generateStaticParams() {
   return projects.map(({ slug }) => ({ slug }));
@@ -16,8 +19,31 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
   if (!project) return {};
 
   return {
-    title: `${project.title.replace("\n", " ")} | Sophy Mengkorng`,
+    title: project.title.replace("\n", " "),
     description: project.description,
+    alternates: { canonical: `/projects/${project.slug}` },
+    openGraph: {
+      type: "article",
+      locale: siteConfig.locale,
+      url: `${siteConfig.url}/projects/${project.slug}`,
+      siteName: siteConfig.name,
+      title: `${project.title.replace("\n", " ")} | Sophy Mengkorng`,
+      description: project.description,
+      images: [
+        {
+          url: "/opengraph-image",
+          width: 1200,
+          height: 630,
+          alt: "Sophy Mengkorng, Frontend Developer Portfolio",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${project.title.replace("\n", " ")} | Sophy Mengkorng`,
+      description: project.description,
+      images: ["/twitter-image"],
+    },
   };
 }
 
@@ -29,8 +55,41 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
   const project = getProject((await params).slug);
   if (!project) notFound();
 
+  const projectUrl = `${siteConfig.url}/projects/${project.slug}`;
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "CreativeWork",
+        "@id": `${projectUrl}/#project`,
+        name: project.title.replace("\n", " "),
+        description: project.description,
+        url: projectUrl,
+        creator: {
+          "@type": "Person",
+          "@id": `${siteConfig.url}/#person`,
+          name: "Sophy Mengkorng",
+          url: siteConfig.url,
+        },
+        keywords: project.technologies.join(", "),
+        ...(project.liveUrl ? { workExample: { "@type": "WebSite", url: project.liveUrl } } : {}),
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Portfolio", item: siteConfig.url },
+          { "@type": "ListItem", position: 2, name: project.title.replace("\n", " "), item: projectUrl },
+        ],
+      },
+    ],
+  };
+
   return (
     <main className={`case-page case-page-${project.className}`}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }}
+      />
       <header className="case-header">
         <Link className="brand" href="/" aria-label="Back to portfolio">KORN<span>G</span></Link>
         <Link className="case-back" href="/#work">Back to work <span>↙</span></Link>

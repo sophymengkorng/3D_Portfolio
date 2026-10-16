@@ -161,7 +161,7 @@ export default function PortfolioExperience() {
     <div className="site-shell" ref={root}>
       <div className="scroll-progress" />
       <header className="site-header">
-        <a className="brand" href="#home" aria-label="Sophy Mengkorng home">KORN<span>G</span></a>
+        <a className="brand" href="#home" aria-label="Sophy Mengkorng home">KORNG<span>G</span></a>
         <nav aria-label="Main navigation"><a href="#about">About</a><a href="#work">Work</a><a href="#skills">Skills</a></nav>
         <a className="nav-cta" href="#contact">Let&apos;s talk <ArrowIcon /></a>
       </header>
@@ -218,7 +218,7 @@ export default function PortfolioExperience() {
                       <div className="portrait-halo" />
                       <Image
                         className="profile-image"
-                        src="/profile.png"
+                        src="/profilev2.jpg"
                         alt="Portrait of Sophy Mengkorng"
                         fill
                         sizes="(max-width: 900px) 90vw, 38vw"
@@ -250,8 +250,7 @@ export default function PortfolioExperience() {
             {projects.map((project, index) => (
               <motion.article className={`project-row project-${project.className} ${index % 2 ? "project-reverse" : ""}`} key={project.number} initial={{ opacity: 0, y: 70 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}>
                 <div className="project-art-wrap"><ProjectArtwork variant={project.className} /><span className="project-count">{project.number}</span></div>
-                <div className="project-copy"><p className="eyebrow">{project.type}</p><h3>{project.title.split("\n").map((line) => <span key={line}>{line}</span>)}</h3><p>{project.description}</p><div className="tag-list">{project.technologies.map((technology) => <span key={technology}>{technology}</span>)}</div><div className="project-links"><Link href={`/projects/${project.slug}`} className="case-link" aria-label={`View ${project.title.replace("\n", " ")} case study`}>Case study <ArrowIcon /></Link>{project.liveUrl && <a href={project.liveUrl} className="case-link case-link-live" target="_blank" rel="noopener noreferrer" aria-label={`Open ${project.title.replace("\n", " ")} live website in a new tab`}>Live site <span aria-hidden="true">↗</span></a>}</div></div>
-              </motion.article>
+                <div className="project-copy"><p className="eyebrow">{project.type}</p><h3>{project.title.split("\n").map((line) => <span key={line}>{line}</span>)}</h3><p>{project.description}</p><div className="tag-list">{project.technologies.map((technology) => <span key={technology}>{technology}</span>)}</div><div className="project-links"><Link href={`/projects/${project.slug}`} className="case-link" aria-label={`View ${project.title.replace("\n", " ")} case study`}>Case study <ArrowIcon /></Link>{project.liveUrl && <a href={project.liveUrl} className="case-link case-link-live" target="_blank" rel="noopener noreferrer" aria-label={`Open ${project.title.replace("\n", " ")} live website in a new tab`}>Live site <span aria-hidden="true">↗</span></a>}</div></div>           </motion.article>
             ))}
           </div>
         </section>

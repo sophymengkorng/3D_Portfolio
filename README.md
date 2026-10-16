@@ -94,7 +94,7 @@ href="mailto:your-email@example.com"
 Replace the existing image while keeping this filename and location:
 
 ```text
-public/profile.png
+public/profilev2.jpg
 ```
 
 A transparent PNG works best with the animated 3D frame.
@@ -162,7 +162,7 @@ my_portfolio/
 |-- components/
 |   `-- PortfolioExperience.tsx  # Content and animation logic
 |-- public/
-|   `-- profile.png       # Profile portrait
+|   `-- profilev2.jpg     # Profile portrait
 |-- package.json          # Dependencies and npm scripts
 |-- package-lock.json     # Locked dependency versions
 `-- README.md
