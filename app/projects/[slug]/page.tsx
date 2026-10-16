@@ -85,11 +85,11 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
       <script
         type="application/ld+json"
         // Static project data from lib/projects.ts — no user input is interpolated here.
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schema).replace(/</g, "\\u003c") }}
       />
       <header className="case-header">
         <Link className="brand" href="/" aria-label="Back to portfolio">KORN<span>G</span></Link>
-        <Link className="case-back" href="/#work">Back to work <span>↙</span></Link>
+        <Link className="case-back" href="/#work">Back to work <span>&#8601;</span></Link>
       </header>
 
       <section className="case-hero">
@@ -100,7 +100,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           <p>{project.description}</p>
           <div className="case-summary-actions">
             <div className="tag-list">{project.technologies.map((technology) => <span key={technology}>{technology}</span>)}</div>
-            {project.liveUrl && <a className="case-live-link" href={project.liveUrl} target="_blank" rel="noopener noreferrer">Visit live website <span aria-hidden="true">↗</span></a>}
+            {project.liveUrl && <a className="case-live-link" href={project.liveUrl} target="_blank" rel="noopener noreferrer">Visit live website <span aria-hidden="true">&#8599;</span></a>}
           </div>
         </div>
         <span className="case-number" aria-hidden="true">{project.number}</span>

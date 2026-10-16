@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Poppins } from "next/font/google";
-import { siteConfig } from "@/lib/site";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./globals.css";
 import { site, siteUrl } from "@/lib/site";
@@ -66,6 +65,9 @@ export const metadata: Metadata = {
     email: false,
     address: false,
   },
+  ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
+    ? { verification: { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION } }
+    : {}),
 };
 
 export const viewport: Viewport = {
@@ -76,9 +78,10 @@ export const viewport: Viewport = {
 const personSchema = {
   "@context": "https://schema.org",
   "@type": "Person",
+  "@id": `${siteUrl}/#person`,
   name: site.author,
   url: siteUrl,
-  image: `${siteUrl}/profile.png`,
+  image: `${siteUrl}/profile_v2.png`,
   jobTitle: site.jobTitle,
   description: site.description,
   sameAs: [...site.socials],
@@ -104,11 +107,12 @@ const personSchema = {
 const websiteSchema = {
   "@context": "https://schema.org",
   "@type": "WebSite",
+  "@id": `${siteUrl}/#website`,
   name: site.name,
   url: siteUrl,
   inLanguage: "en",
   description: site.description,
-  author: { "@type": "Person", name: site.author, url: siteUrl },
+  author: { "@id": `${siteUrl}/#person` },
 };
 
 export default function RootLayout({
@@ -124,7 +128,7 @@ export default function RootLayout({
           type="application/ld+json"
           // Static, build-time constants — no user input is interpolated here.
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify([personSchema, websiteSchema]),
+            __html: JSON.stringify([personSchema, websiteSchema]).replace(/</g, "\\u003c"),
           }}
         />
       </body>
