@@ -7,11 +7,11 @@ export const site = {
   url: siteUrl,
   name: "Sophy Mengkorng Portfolio",
   shortName: "KORNG",
-  author: "Sophy Mengkorng",
+  author: "Sophy MengKorng",
   jobTitle: "Frontend Developer",
   title: "Sophy Mengkorng | Creative Frontend Developer",
   description:
-    "Explore the portfolio of Sophy Mengkorng, a creative frontend developer and MIS student based in Phnom Penh, Cambodia. Discover my projects, skills, and experience.",
+    "Explore the portfolio of Sophy MengKorng, a creative frontend developer and MIS student based in Phnom Penh, Cambodia. Discover my projects, skills, and experience.",
   locale: "en_US",
   city: "Phnom Penh",
   country: "Cambodia",
