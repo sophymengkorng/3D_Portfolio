@@ -139,7 +139,7 @@ export default function PortfolioExperience() {
         z: -64,
         force3D: true,
         ease: "none",
-        scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: 0.4 },
+        scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: 0.2 },
       });
 
       gsap.utils.toArray<HTMLElement>(".project-art-wrap").forEach((art, index) => {
@@ -151,7 +151,7 @@ export default function PortfolioExperience() {
             y: -18,
             force3D: true,
             ease: "none",
-            scrollTrigger: { trigger: art, start: "top bottom", end: "bottom top", scrub: 0.4 },
+            scrollTrigger: { trigger: art, start: "top bottom", end: "bottom top", scrub: 0.2 },
           },
         );
 
@@ -167,7 +167,7 @@ export default function PortfolioExperience() {
             start: "clamp(top bottom)",
             end: "clamp(bottom top)",
             animation: scanAnimation,
-            scrub: 0.4,
+            scrub: 0.2,
             invalidateOnRefresh: true,
           });
         }
@@ -178,7 +178,7 @@ export default function PortfolioExperience() {
         rotationY: 210,
         force3D: true,
         ease: "none",
-        scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: 0.4 },
+        scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: 0.2 },
       });
 
       const hero = root.current?.querySelector<HTMLElement>(".hero");
@@ -255,7 +255,7 @@ export default function PortfolioExperience() {
       let trailRatio = 1;
 
       const resizeTrail = () => {
-        trailRatio = Math.min(window.devicePixelRatio || 1, 1.15);
+        trailRatio = 1;
         trail.width = Math.round(window.innerWidth * trailRatio);
         trail.height = Math.round(window.innerHeight * trailRatio);
         trailContext.setTransform(trailRatio, 0, 0, trailRatio, 0, 0);
@@ -263,7 +263,7 @@ export default function PortfolioExperience() {
 
       const drawTrail = () => {
         trailContext.clearRect(0, 0, window.innerWidth, window.innerHeight);
-        trailPoints.forEach((point) => { point.life -= 0.085; });
+        trailPoints.forEach((point) => { point.life -= 0.12; });
         while (trailPoints.length && trailPoints[0].life <= 0) trailPoints.shift();
 
         if (trailPoints.length > 1) {
@@ -285,23 +285,12 @@ export default function PortfolioExperience() {
           trailContext.lineCap = "round";
           trailContext.lineJoin = "round";
           trailContext.strokeStyle = gradient;
-          trailContext.lineWidth = 2.4;
-          trailContext.shadowColor = "rgba(220,67,255,.9)";
-          trailContext.shadowBlur = 5;
+          trailContext.lineWidth = 2;
           trailContext.stroke();
 
-          trailContext.shadowBlur = 0;
           trailContext.strokeStyle = "rgba(255,250,255,.5)";
           trailContext.lineWidth = 0.8;
           trailContext.stroke();
-
-          trailPoints.slice(-3).forEach((point, index, particles) => {
-            const progress = (index + 1) / particles.length;
-            trailContext.beginPath();
-            trailContext.arc(point.x, point.y, 0.7 + progress * 1.5, 0, Math.PI * 2);
-            trailContext.fillStyle = `rgba(235,155,255,${progress * point.life * 0.7})`;
-            trailContext.fill();
-          });
         }
 
         if (trailPoints.length) {
@@ -313,9 +302,9 @@ export default function PortfolioExperience() {
 
       const addTrailPoint = (x: number, y: number) => {
         const previous = trailPoints[trailPoints.length - 1];
-        if (previous && Math.hypot(x - previous.x, y - previous.y) < 5) return;
+        if (previous && Math.hypot(x - previous.x, y - previous.y) < 7) return;
         trailPoints.push({ x, y, life: 1 });
-        if (trailPoints.length > 16) trailPoints.shift();
+        if (trailPoints.length > 12) trailPoints.shift();
         if (!trailFrame) trailFrame = window.requestAnimationFrame(drawTrail);
       };
 
@@ -340,6 +329,8 @@ export default function PortfolioExperience() {
       let lastPointerY = 0;
       let lastScrollY = window.scrollY;
       let scrollEndTimer = 0;
+      let pointerMoveFrame = 0;
+      let scrollFrame = 0;
 
       const updateInteractiveState = () => {
         const elementBelowPointer = document.elementFromPoint(lastPointerX, lastPointerY);
@@ -351,14 +342,19 @@ export default function PortfolioExperience() {
         pointerVisible = true;
         lastPointerX = event.clientX;
         lastPointerY = event.clientY;
-        moveGlowX(event.clientX);
-        moveGlowY(event.clientY);
-        movePointerX(event.clientX);
-        movePointerY(event.clientY);
-        addTrailPoint(event.clientX, event.clientY);
-        pointer.classList.remove("is-scrolling", "scroll-up", "scroll-down");
-        showGlow(0.55);
-        showPointer(1);
+        if (pointerMoveFrame) return;
+
+        pointerMoveFrame = window.requestAnimationFrame(() => {
+          pointerMoveFrame = 0;
+          moveGlowX(lastPointerX);
+          moveGlowY(lastPointerY);
+          movePointerX(lastPointerX);
+          movePointerY(lastPointerY);
+          addTrailPoint(lastPointerX, lastPointerY);
+          pointer.classList.remove("is-scrolling", "scroll-up", "scroll-down");
+          showGlow(0.48);
+          showPointer(1);
+        });
       };
       const hideCustomPointer = () => {
         pointerVisible = false;
@@ -369,6 +365,9 @@ export default function PortfolioExperience() {
         clearTrail();
       };
       const handleWindowScroll = () => {
+        if (scrollFrame) return;
+        scrollFrame = window.requestAnimationFrame(() => {
+          scrollFrame = 0;
         clearTrail();
         if (!pointerVisible) return;
 
@@ -384,8 +383,9 @@ export default function PortfolioExperience() {
         scrollEndTimer = window.setTimeout(() => {
           pointer.classList.remove("is-scrolling", "scroll-up", "scroll-down");
           updateInteractiveState();
-          if (pointerVisible) showGlow(0.55);
-        }, 100);
+          if (pointerVisible) showGlow(0.48);
+        }, 80);
+        });
       };
       const handlePointerDown = () => pointer.classList.add("is-pressed");
       const handlePointerUp = () => pointer.classList.remove("is-pressed");
@@ -446,6 +446,8 @@ export default function PortfolioExperience() {
         window.removeEventListener("resize", resizeTrail);
         document.documentElement.removeEventListener("mouseleave", hideCustomPointer);
         window.clearTimeout(scrollEndTimer);
+        if (pointerMoveFrame) window.cancelAnimationFrame(pointerMoveFrame);
+        if (scrollFrame) window.cancelAnimationFrame(scrollFrame);
         clearTrail();
         hoverCleanups.forEach((cleanup) => cleanup());
         artworkCleanups.forEach((cleanup) => cleanup());
@@ -573,13 +575,13 @@ export default function PortfolioExperience() {
         xPercent: -4,
         ease: "none",
         stagger: 0.08,
-        scrollTrigger: { trigger: contactCard, start: "top bottom", end: "bottom top", scrub: 0.45 },
+        scrollTrigger: { trigger: contactCard, start: "top bottom", end: "bottom top", scrub: 0.25 },
       });
       gsap.to(contactCard.querySelector(".contact-star"), {
         rotation: 135,
         y: -18,
         ease: "none",
-        scrollTrigger: { trigger: contactCard, start: "top bottom", end: "bottom top", scrub: 0.45 },
+        scrollTrigger: { trigger: contactCard, start: "top bottom", end: "bottom top", scrub: 0.25 },
       });
     }
 
