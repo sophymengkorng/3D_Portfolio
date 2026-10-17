@@ -12,6 +12,7 @@ import { projects } from "@/lib/projects";
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 const skills = ["HTML", "CSS", "JAVASCRIPT", "TYPESCRIPT", "REACT", "NEXT.JS", "BOOTSTRAP", "GIT"];
+const sectionIds = ["home", "about", "work", "skills", "contact"];
 
 const reveal = {
   initial: { opacity: 0, y: 36 },
@@ -71,7 +72,56 @@ export default function PortfolioExperience() {
       scrollTrigger: { start: 0, end: "max", scrub: 0.25 },
     });
 
-    if (reduceMotion) return;
+    const activateSection = (activeId: string) => {
+      const activeIndex = sectionIds.indexOf(activeId);
+      root.current?.querySelectorAll<HTMLElement>("[data-section-target]").forEach((item) => {
+        const itemIndex = sectionIds.indexOf(item.dataset.sectionTarget ?? "");
+        item.classList.toggle("is-active", itemIndex === activeIndex);
+        item.classList.toggle("is-passed", itemIndex < activeIndex);
+      });
+    };
+
+    sectionIds.forEach((id) => {
+      const section = root.current?.querySelector<HTMLElement>(`#${id}`);
+      if (!section) return;
+
+      ScrollTrigger.create({
+        trigger: section,
+        start: "top 48%",
+        end: "bottom 48%",
+        onEnter: () => activateSection(id),
+        onEnterBack: () => activateSection(id),
+      });
+    });
+
+    const anchorLinks = root.current?.querySelectorAll<HTMLAnchorElement>('a[href^="#"]') ?? [];
+    const removeUrlHash = () => {
+      window.history.replaceState(window.history.state, "", `${window.location.pathname}${window.location.search}`);
+    };
+    const handleAnchorClick = (event: MouseEvent) => {
+      const link = event.currentTarget as HTMLAnchorElement;
+      const targetId = link.getAttribute("href");
+      if (!targetId || targetId === "#") return;
+
+      const target = root.current?.querySelector<HTMLElement>(targetId);
+      if (!target) return;
+
+      event.preventDefault();
+      target.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+      removeUrlHash();
+    };
+
+    anchorLinks.forEach((link) => link.addEventListener("click", handleAnchorClick));
+
+    if (window.location.hash) {
+      window.requestAnimationFrame(removeUrlHash);
+    }
+
+    const removeAnchorListeners = () => {
+      anchorLinks.forEach((link) => link.removeEventListener("click", handleAnchorClick));
+    };
+
+    if (reduceMotion) return removeAnchorListeners;
 
     const intro = gsap.timeline({ defaults: { ease: "power4.out" } });
     intro
@@ -89,7 +139,7 @@ export default function PortfolioExperience() {
         z: -64,
         force3D: true,
         ease: "none",
-        scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: 1.15 },
+        scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: 0.4 },
       });
 
       gsap.utils.toArray<HTMLElement>(".project-art-wrap").forEach((art, index) => {
@@ -101,9 +151,26 @@ export default function PortfolioExperience() {
             y: -18,
             force3D: true,
             ease: "none",
-            scrollTrigger: { trigger: art, start: "top bottom", end: "bottom top", scrub: 1.25 },
+            scrollTrigger: { trigger: art, start: "top bottom", end: "bottom top", scrub: 0.4 },
           },
         );
+
+        const scanline = art.querySelector<HTMLElement>(".art-scanline");
+        if (scanline) {
+          const scanAnimation = gsap.fromTo(scanline,
+            { y: -35, opacity: 0 },
+            { y: () => art.offsetHeight + 35, opacity: 0.72, ease: "none", paused: true },
+          );
+
+          ScrollTrigger.create({
+            trigger: art,
+            start: "clamp(top bottom)",
+            end: "clamp(bottom top)",
+            animation: scanAnimation,
+            scrub: 0.4,
+            invalidateOnRefresh: true,
+          });
+        }
       });
 
       gsap.to(".scene-core-scroll", {
@@ -111,7 +178,7 @@ export default function PortfolioExperience() {
         rotationY: 210,
         force3D: true,
         ease: "none",
-        scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: 1.15 },
+        scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: 0.4 },
       });
 
       const hero = root.current?.querySelector<HTMLElement>(".hero");
@@ -176,6 +243,215 @@ export default function PortfolioExperience() {
       };
     });
 
+    media.add("(min-width: 901px) and (pointer: fine)", () => {
+      const glow = root.current?.querySelector<HTMLElement>(".cursor-glow");
+      const pointer = root.current?.querySelector<HTMLElement>(".cursor-pointer");
+      const trail = root.current?.querySelector<HTMLCanvasElement>(".cursor-trail");
+      const trailContext = trail?.getContext("2d");
+      if (!glow || !pointer || !trail || !trailContext) return;
+
+      const trailPoints: Array<{ x: number; y: number; life: number }> = [];
+      let trailFrame = 0;
+      let trailRatio = 1;
+
+      const resizeTrail = () => {
+        trailRatio = Math.min(window.devicePixelRatio || 1, 1.15);
+        trail.width = Math.round(window.innerWidth * trailRatio);
+        trail.height = Math.round(window.innerHeight * trailRatio);
+        trailContext.setTransform(trailRatio, 0, 0, trailRatio, 0, 0);
+      };
+
+      const drawTrail = () => {
+        trailContext.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        trailPoints.forEach((point) => { point.life -= 0.085; });
+        while (trailPoints.length && trailPoints[0].life <= 0) trailPoints.shift();
+
+        if (trailPoints.length > 1) {
+          const first = trailPoints[0];
+          const last = trailPoints[trailPoints.length - 1];
+          const gradient = trailContext.createLinearGradient(first.x, first.y, last.x, last.y);
+          gradient.addColorStop(0, "rgba(192,0,255,0)");
+          gradient.addColorStop(0.55, "rgba(220,67,255,.6)");
+          gradient.addColorStop(1, "rgba(255,250,255,.95)");
+
+          trailContext.beginPath();
+          trailContext.moveTo(first.x, first.y);
+          for (let index = 1; index < trailPoints.length - 1; index += 1) {
+            const point = trailPoints[index];
+            const next = trailPoints[index + 1];
+            trailContext.quadraticCurveTo(point.x, point.y, (point.x + next.x) / 2, (point.y + next.y) / 2);
+          }
+          trailContext.lineTo(last.x, last.y);
+          trailContext.lineCap = "round";
+          trailContext.lineJoin = "round";
+          trailContext.strokeStyle = gradient;
+          trailContext.lineWidth = 2.4;
+          trailContext.shadowColor = "rgba(220,67,255,.9)";
+          trailContext.shadowBlur = 5;
+          trailContext.stroke();
+
+          trailContext.shadowBlur = 0;
+          trailContext.strokeStyle = "rgba(255,250,255,.5)";
+          trailContext.lineWidth = 0.8;
+          trailContext.stroke();
+
+          trailPoints.slice(-3).forEach((point, index, particles) => {
+            const progress = (index + 1) / particles.length;
+            trailContext.beginPath();
+            trailContext.arc(point.x, point.y, 0.7 + progress * 1.5, 0, Math.PI * 2);
+            trailContext.fillStyle = `rgba(235,155,255,${progress * point.life * 0.7})`;
+            trailContext.fill();
+          });
+        }
+
+        if (trailPoints.length) {
+          trailFrame = window.requestAnimationFrame(drawTrail);
+        } else {
+          trailFrame = 0;
+        }
+      };
+
+      const addTrailPoint = (x: number, y: number) => {
+        const previous = trailPoints[trailPoints.length - 1];
+        if (previous && Math.hypot(x - previous.x, y - previous.y) < 5) return;
+        trailPoints.push({ x, y, life: 1 });
+        if (trailPoints.length > 16) trailPoints.shift();
+        if (!trailFrame) trailFrame = window.requestAnimationFrame(drawTrail);
+      };
+
+      const clearTrail = () => {
+        trailPoints.length = 0;
+        if (trailFrame) window.cancelAnimationFrame(trailFrame);
+        trailFrame = 0;
+        trailContext.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      };
+
+      resizeTrail();
+
+      gsap.set([glow, pointer], { xPercent: -50, yPercent: -50 });
+      const moveGlowX = gsap.quickTo(glow, "x", { duration: 0.22, ease: "power2.out" });
+      const moveGlowY = gsap.quickTo(glow, "y", { duration: 0.22, ease: "power2.out" });
+      const movePointerX = gsap.quickTo(pointer, "x", { duration: 0.055, ease: "power2.out" });
+      const movePointerY = gsap.quickTo(pointer, "y", { duration: 0.055, ease: "power2.out" });
+      const showGlow = gsap.quickSetter(glow, "opacity");
+      const showPointer = gsap.quickSetter(pointer, "opacity");
+      let pointerVisible = false;
+      let lastPointerX = 0;
+      let lastPointerY = 0;
+      let lastScrollY = window.scrollY;
+      let scrollEndTimer = 0;
+
+      const updateInteractiveState = () => {
+        const elementBelowPointer = document.elementFromPoint(lastPointerX, lastPointerY);
+        const isInteractive = Boolean(elementBelowPointer?.closest("a, button, .skill-cell, .project-art-wrap"));
+        pointer.classList.toggle("is-interactive", isInteractive);
+      };
+
+      const handleWindowPointerMove = (event: PointerEvent) => {
+        pointerVisible = true;
+        lastPointerX = event.clientX;
+        lastPointerY = event.clientY;
+        moveGlowX(event.clientX);
+        moveGlowY(event.clientY);
+        movePointerX(event.clientX);
+        movePointerY(event.clientY);
+        addTrailPoint(event.clientX, event.clientY);
+        pointer.classList.remove("is-scrolling", "scroll-up", "scroll-down");
+        showGlow(0.55);
+        showPointer(1);
+      };
+      const hideCustomPointer = () => {
+        pointerVisible = false;
+        window.clearTimeout(scrollEndTimer);
+        showGlow(0);
+        showPointer(0);
+        pointer.classList.remove("is-interactive", "is-pressed", "is-scrolling", "scroll-up", "scroll-down");
+        clearTrail();
+      };
+      const handleWindowScroll = () => {
+        clearTrail();
+        if (!pointerVisible) return;
+
+        const isScrollingDown = window.scrollY >= lastScrollY;
+        lastScrollY = window.scrollY;
+        pointer.classList.add("is-scrolling");
+        pointer.classList.toggle("scroll-down", isScrollingDown);
+        pointer.classList.toggle("scroll-up", !isScrollingDown);
+        showGlow(0.28);
+        showPointer(1);
+
+        window.clearTimeout(scrollEndTimer);
+        scrollEndTimer = window.setTimeout(() => {
+          pointer.classList.remove("is-scrolling", "scroll-up", "scroll-down");
+          updateInteractiveState();
+          if (pointerVisible) showGlow(0.55);
+        }, 100);
+      };
+      const handlePointerDown = () => pointer.classList.add("is-pressed");
+      const handlePointerUp = () => pointer.classList.remove("is-pressed");
+
+      window.addEventListener("pointermove", handleWindowPointerMove, { passive: true });
+      window.addEventListener("scroll", handleWindowScroll, { passive: true });
+      window.addEventListener("pointerdown", handlePointerDown, { passive: true });
+      window.addEventListener("pointerup", handlePointerUp, { passive: true });
+      window.addEventListener("resize", resizeTrail, { passive: true });
+      document.documentElement.addEventListener("mouseleave", hideCustomPointer);
+
+      const hoverCleanups = gsap.utils.toArray<HTMLElement>("a, button, .skill-cell, .project-art-wrap").map((target) => {
+        const playHoverPulse = () => pointer.classList.add("is-interactive");
+        const resetHoverPulse = () => pointer.classList.remove("is-interactive", "is-pressed");
+
+        target.addEventListener("pointerenter", playHoverPulse);
+        target.addEventListener("pointerleave", resetHoverPulse);
+
+        return () => {
+          target.removeEventListener("pointerenter", playHoverPulse);
+          target.removeEventListener("pointerleave", resetHoverPulse);
+        };
+      });
+
+      const artworkCleanups = gsap.utils.toArray<HTMLElement>(".project-art-wrap").map((card) => {
+        const artwork = card.querySelector<HTMLElement>(".artwork");
+        if (!artwork) return () => undefined;
+
+        const tiltX = gsap.quickTo(artwork, "rotationX", { duration: 0.55, ease: "power3.out" });
+        const tiltY = gsap.quickTo(artwork, "rotationY", { duration: 0.55, ease: "power3.out" });
+
+        const handleCardPointerMove = (event: PointerEvent) => {
+          const bounds = card.getBoundingClientRect();
+          const x = (event.clientX - bounds.left) / bounds.width - 0.5;
+          const y = (event.clientY - bounds.top) / bounds.height - 0.5;
+          tiltX(y * -7);
+          tiltY(x * 7);
+        };
+        const resetCardTilt = () => {
+          tiltX(0);
+          tiltY(0);
+        };
+
+        card.addEventListener("pointermove", handleCardPointerMove, { passive: true });
+        card.addEventListener("pointerleave", resetCardTilt);
+
+        return () => {
+          card.removeEventListener("pointermove", handleCardPointerMove);
+          card.removeEventListener("pointerleave", resetCardTilt);
+        };
+      });
+
+      return () => {
+        window.removeEventListener("pointermove", handleWindowPointerMove);
+        window.removeEventListener("scroll", handleWindowScroll);
+        window.removeEventListener("pointerdown", handlePointerDown);
+        window.removeEventListener("pointerup", handlePointerUp);
+        window.removeEventListener("resize", resizeTrail);
+        document.documentElement.removeEventListener("mouseleave", hideCustomPointer);
+        window.clearTimeout(scrollEndTimer);
+        clearTrail();
+        hoverCleanups.forEach((cleanup) => cleanup());
+        artworkCleanups.forEach((cleanup) => cleanup());
+      };
+    });
+
     const coreSpin = gsap.to(".scene-core", { rotationX: 360, rotationY: -360, duration: 38, repeat: -1, ease: "none", force3D: true });
     const ringSpin = gsap.to(".scene-ring-a", { rotationZ: 360, rotationY: 55, duration: 48, repeat: -1, ease: "none", force3D: true });
     ScrollTrigger.create({
@@ -195,11 +471,117 @@ export default function PortfolioExperience() {
 
     const sectionHeadings = gsap.utils.toArray<HTMLElement>(".section-heading");
     sectionHeadings.forEach((heading) => {
-      gsap.fromTo(heading, { y: 45, opacity: 0 }, {
-        y: 0, opacity: 1, duration: 0.8, ease: "power3.out",
-        scrollTrigger: { trigger: heading, start: "top 88%", toggleActions: "play none none none" },
+      const eyebrow = heading.querySelector(".eyebrow");
+      const title = heading.querySelector("h2");
+      const introCopy = heading.querySelector(".work-intro");
+      const headingTimeline = gsap.timeline({ paused: true, defaults: { ease: "power3.out" } });
+
+      if (eyebrow) headingTimeline.fromTo(eyebrow, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45 });
+      if (title) headingTimeline.fromTo(title,
+        { y: 58, opacity: 0, clipPath: "inset(0 0 100% 0)" },
+        { y: 0, opacity: 1, clipPath: "inset(0 0 0% 0)", duration: 0.9 },
+        "-=0.22",
+      );
+      if (introCopy) headingTimeline.fromTo(introCopy,
+        { y: 24, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.55 },
+        "-=0.38",
+      );
+
+      ScrollTrigger.create({
+        trigger: heading,
+        start: "top 86%",
+        animation: headingTimeline,
+        toggleActions: "play none none none",
+        preventOverlaps: "section-headings",
+        fastScrollEnd: true,
       });
     });
+
+    const aboutCopy = root.current?.querySelector<HTMLElement>(".about-copy");
+    if (aboutCopy) {
+      gsap.timeline({
+        scrollTrigger: { trigger: aboutCopy, start: "top 82%", toggleActions: "play none none none" },
+        defaults: { ease: "power3.out" },
+      })
+        .fromTo(aboutCopy.querySelectorAll(":scope > .big-number, :scope > p"),
+          { y: 34, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.75, stagger: 0.1 },
+        )
+        .fromTo(aboutCopy.querySelectorAll(".about-meta > div"),
+          { y: 22, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.55, stagger: 0.08 },
+          "-=0.32",
+        );
+    }
+
+    gsap.utils.toArray<HTMLElement>(".project-row").forEach((project) => {
+      const artwork = project.querySelector(".project-art-wrap");
+      const copy = project.querySelectorAll(".project-copy > *");
+      const direction = project.classList.contains("project-reverse") ? -1 : 1;
+
+      gsap.timeline({
+        scrollTrigger: { trigger: project, start: "top 80%", toggleActions: "play none none none" },
+        defaults: { ease: "power3.out" },
+      })
+        .fromTo(artwork,
+          { x: 34 * direction, opacity: 0, scale: 0.96 },
+          { x: 0, opacity: 1, scale: 1, duration: 0.9 },
+        )
+        .fromTo(copy,
+          { y: 30, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.68, stagger: 0.08 },
+          "-=0.58",
+        );
+    });
+
+    const skillsTimeline = gsap.timeline({ paused: true });
+    skillsTimeline.fromTo(".skill-cell",
+      { y: 28, opacity: 0, scale: 0.97 },
+      {
+        y: 0,
+        opacity: 1,
+        scale: 1,
+        duration: 0.62,
+        stagger: 0.07,
+        ease: "power3.out",
+        overwrite: true,
+      },
+    );
+    ScrollTrigger.create({
+      trigger: ".skills-grid",
+      start: "top 88%",
+      animation: skillsTimeline,
+      toggleActions: "play none none none",
+    });
+
+    const contactCard = root.current?.querySelector<HTMLElement>(".contact-card");
+    if (contactCard) {
+      gsap.timeline({
+        scrollTrigger: { trigger: contactCard, start: "top 80%", toggleActions: "play none none none" },
+        defaults: { ease: "power3.out" },
+      })
+        .fromTo(contactCard, { y: 45, opacity: 0 }, { y: 0, opacity: 1, duration: 0.9 })
+        .fromTo(contactCard.querySelectorAll(".contact-topline, .contact-star, h2, .contact-bottom"),
+          { y: 24, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.65, stagger: 0.09 },
+          "-=0.55",
+        );
+
+      gsap.to(contactCard.querySelectorAll(".contact-orbit"), {
+        scale: 1.12,
+        xPercent: -4,
+        ease: "none",
+        stagger: 0.08,
+        scrollTrigger: { trigger: contactCard, start: "top bottom", end: "bottom top", scrub: 0.45 },
+      });
+      gsap.to(contactCard.querySelector(".contact-star"), {
+        rotation: 135,
+        y: -18,
+        ease: "none",
+        scrollTrigger: { trigger: contactCard, start: "top bottom", end: "bottom top", scrub: 0.45 },
+      });
+    }
 
     gsap.fromTo(".portrait-stage", {
       rotationY: -16, rotationX: 7, y: 45, opacity: 0,
@@ -223,16 +605,22 @@ export default function PortfolioExperience() {
       });
     }
 
-    return () => media.revert();
+    return () => {
+      removeAnchorListeners();
+      media.revert();
+    };
   }, { scope: root });
 
   return (
     <div className="site-shell" ref={root}>
       <div className="scroll-progress" />
+      <div className="cursor-glow" aria-hidden="true" />
+      <canvas className="cursor-trail" aria-hidden="true" />
+      <div className="cursor-pointer" aria-hidden="true"><span /><i /></div>
       <header className="site-header">
-        <a className="brand" href="#home" aria-label="Sophy Mengkorng home">KORNG<span>G</span></a>
-        <nav aria-label="Main navigation"><a href="#about">About</a><a href="#work">Work</a><a href="#skills">Skills</a></nav>
-        <a className="nav-cta" href="#contact">Let&apos;s talk <ArrowIcon /></a>
+        <a className="brand" href="#home" aria-label="Sophy Mengkorng home" data-section-target="home">KORNG<span>G</span></a>
+        <nav aria-label="Main navigation"><a href="#about" data-section-target="about">About</a><a href="#work" data-section-target="work">Work</a><a href="#skills" data-section-target="skills">Skills</a></nav>
+        <a className="nav-cta" href="#contact" data-section-target="contact">Let&apos;s talk <ArrowIcon /></a>
       </header>
 
       <main>
@@ -308,12 +696,12 @@ export default function PortfolioExperience() {
                 <span className="stamp-copy">CREATIVE<br />BY NATURE</span>
               </div>
             </motion.div>
-            <motion.div className="about-copy" {...reveal} transition={{ ...reveal.transition, delay: 0.12 }}>
+            <div className="about-copy">
               <span className="big-number">02</span>
               <p className="lead-copy">I&apos;m a Management Information Systems student who enjoys the space where <strong>Technology, Design, And people</strong> meet.</p>
               <p>My focus is frontend engineering and UI design—creating digital experiences that feel useful, Visually engaging, And considered at every screen size. I&apos;m always learning, Solving, And refining.</p>
               <div className="about-meta"><div><small>BASED IN</small><span>Phnom Penh, Cambodia</span></div><div><small>FOCUS</small><span>Frontend & UI Design</span></div></div>
-            </motion.div>
+            </div>
           </div>
         </section>
 
@@ -321,26 +709,26 @@ export default function PortfolioExperience() {
           <div className="section-heading work-heading"><p className="eyebrow">02 / Selected work</p><h2>Projects built with<br /><span>purpose & curiosity.</span></h2><p className="work-intro">A small selection of interfaces and experiments that shaped how I design and build.</p></div>
           <div className="project-list">
             {projects.map((project, index) => (
-              <motion.article className={`project-row project-${project.className} ${index % 2 ? "project-reverse" : ""}`} key={project.number} initial={{ opacity: 0, y: 70 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}>
-                <div className="project-art-wrap"><ProjectArtwork variant={project.className} /><span className="project-count">{project.number}</span></div>
+              <article className={`project-row project-${project.className} ${index % 2 ? "project-reverse" : ""}`} key={project.number}>
+                <div className="project-art-wrap"><ProjectArtwork variant={project.className} /><span className="art-scanline" aria-hidden="true" /><span className="project-count">{project.number}</span></div>
                 <div className="project-copy"><p className="eyebrow">{project.type}</p><h3>{project.title.split("\n").map((line) => <span key={line}>{line}</span>)}</h3><p>{project.description}</p><div className="tag-list">{project.technologies.map((technology) => <span key={technology}>{technology}</span>)}</div><div className="project-links"><Link href={`/projects/${project.slug}`} className="case-link" aria-label={`View ${project.title.replace("\n", " ")} case study`}>Case study <ArrowIcon /></Link>{project.liveUrl && <a href={project.liveUrl} className="case-link case-link-live" target="_blank" rel="noopener noreferrer" aria-label={`Open ${project.title.replace("\n", " ")} live website in a new tab`}>View Project <span aria-hidden="true">↗</span></a>}</div></div>
-              </motion.article>
+              </article>
             ))}
           </div>
         </section>
 
         <section className="skills" id="skills"><div className="skills-inner section-wrap">
           <div className="section-heading"><p className="eyebrow">03 / Skills & tools</p><h2>The toolkit behind<br /><span>the interface.</span></h2></div>
-          <motion.div className="skills-grid" {...reveal}>{skills.map((skill, index) => <div className="skill-cell" key={skill}><span>{String(index + 1).padStart(2, "0")}</span><strong>{skill}</strong><i>↗</i></div>)}</motion.div>
+          <div className="skills-grid">{skills.map((skill, index) => <div className="skill-cell" key={skill}><span>{String(index + 1).padStart(2, "0")}</span><strong>{skill}</strong><i>↗</i></div>)}</div>
         </div></section>
 
-        <section className="contact section-wrap" id="contact"><motion.div className="contact-card" {...reveal}>
+        <section className="contact section-wrap" id="contact"><div className="contact-card">
           <div className="contact-topline"><p className="eyebrow">04 / Let&apos;s make something</p><span><i /> Available for opportunities</span></div>
           <div className="contact-star"><SparkIcon /></div>
           <h2>HAVE AN IDEA?<br /><span>LET&apos;S BUILD IT.</span></h2>
           <div className="contact-bottom"><p>I&apos;m open to internships, Collaborations, And meaningful frontend projects.</p><a className="contact-button" href="https://www.facebook.com/sophymengkorng168">Start a conversation <ArrowIcon /></a></div>
           <div className="contact-orbit orbit-contact-one" /><div className="contact-orbit orbit-contact-two" />
-        </motion.div></section>
+        </div></section>
       </main>
 
       <footer><a className="brand" href="#home" aria-label="Back to top">KORN<span>G</span></a><p>Designed & developed by Sophy Mengkorng</p><a className="footer-top" href="#home">Back to top <span>↑</span></a></footer>
