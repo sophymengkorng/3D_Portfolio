@@ -71,7 +71,7 @@ export default function OpengraphImage() {
             {site.author.toUpperCase()}
           </div>
           <div style={{ display: "flex", fontSize: 116, fontWeight: 900, lineHeight: 0.92 }}>
-            CREATIVE
+            Junior
           </div>
           <div
             style={{

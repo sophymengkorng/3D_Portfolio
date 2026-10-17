@@ -38,14 +38,14 @@ export const metadata: Metadata = {
     siteName: site.name,
     title: site.title,
     description:
-      "Explore my frontend development projects, technical skills, and creative web experiences.",
+      "Explore my frontend development projects, Technical skills, And creative web experiences.",
   },
 
   twitter: {
     card: "summary_large_image",
     title: site.title,
     description:
-      "Explore the projects and skills of Sophy Mengkorng, a frontend developer based in Cambodia.",
+      "Explore the projects and skills of Sophy Mengkorng, A frontend developer based in Cambodia.",
   },
 
   robots: {
@@ -83,6 +83,7 @@ const personSchema = {
   url: siteUrl,
   image: `${siteUrl}/profile_v2.png`,
   jobTitle: site.jobTitle,
+  email: site.email,
   description: site.description,
   sameAs: [...site.socials],
   address: {
@@ -97,10 +98,14 @@ const personSchema = {
     "TypeScript",
     "UI Design",
     "Responsive Web Design",
+    "Angular",
+    "Supabase",
+    "REST API Integration",
   ],
   alumniOf: {
     "@type": "EducationalOrganization",
-    name: "Management Information Systems",
+    name: "SETEC Institute",
+    url: "https://www.setecu.com/",
   },
 };
 

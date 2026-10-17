@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProject, projects } from "@/lib/projects";
@@ -67,7 +68,8 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
       keywords: project.technologies.join(", "),
       author: { "@type": "Person", name: site.author, url: siteUrl },
       creator: { "@type": "Person", name: site.author, url: siteUrl },
-      ...(project.liveUrl ? { sameAs: project.liveUrl } : {}),
+      image: absoluteUrl(project.image),
+      sameAs: [project.liveUrl, project.sourceUrl],
     },
     {
       "@context": "https://schema.org",
@@ -89,7 +91,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
       />
       <header className="case-header">
         <Link className="brand" href="/" aria-label="Back to portfolio">KORN<span>G</span></Link>
-        <Link className="case-back" href="/#work">Back to work <span>&#8601;</span></Link>
+        <Link className="case-back" href="/projects">All projects <span>&#8601;</span></Link>
       </header>
 
       <section className="case-hero">
@@ -100,16 +102,28 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           <p>{project.description}</p>
           <div className="case-summary-actions">
             <div className="tag-list">{project.technologies.map((technology) => <span key={technology}>{technology}</span>)}</div>
-            {project.liveUrl && <a className="case-live-link" href={project.liveUrl} target="_blank" rel="noopener noreferrer">Visit live website <span aria-hidden="true">&#8599;</span></a>}
+            <a className="case-live-link" href={project.liveUrl} target="_blank" rel="noopener noreferrer">Visit live website <span aria-hidden="true">&#8599;</span></a>
+            <a className="case-live-link case-source-link" href={project.sourceUrl} target="_blank" rel="noopener noreferrer">View source code <span aria-hidden="true">&#8599;</span></a>
           </div>
         </div>
         <span className="case-number" aria-hidden="true">{project.number}</span>
+      </section>
+
+      <section className="case-screenshot section-wrap">
+        <div className="case-screenshot-frame">
+          <Image src={project.image} alt={project.imageAlt} fill priority sizes="(max-width: 900px) 94vw, 1180px" />
+        </div>
       </section>
 
       <section className="case-details">
         <article><p className="eyebrow">01 / Challenge</p><h2>THE PROBLEM</h2><p>{project.challenge}</p></article>
         <article><p className="eyebrow">02 / Approach</p><h2>THE DIRECTION</h2><p>{project.approach}</p></article>
         <article><p className="eyebrow">03 / Outcome</p><h2>THE RESULT</h2><p>{project.outcome}</p></article>
+      </section>
+
+      <section className="case-contribution">
+        <div><p className="eyebrow">My contribution</p><h2>{project.role}</h2></div>
+        <p>{project.contribution}</p>
       </section>
 
       <section className="case-highlights">
@@ -119,7 +133,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
       <nav className="case-next" aria-label="Project navigation">
         <p>Ready to explore more?</p>
-        <Link href="/#work">View all projects <ArrowIcon /></Link>
+        <Link href="/projects">View all projects <ArrowIcon /></Link>
       </nav>
     </main>
   );

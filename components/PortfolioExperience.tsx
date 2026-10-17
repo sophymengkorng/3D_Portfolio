@@ -7,12 +7,14 @@ import { motion } from "motion/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import { projects } from "@/lib/projects";
+import ViewMeGallery from "@/components/ViewMeGallery";
+import { projects, type Project } from "@/lib/projects";
+import { achievements, careerInterests, contactLinks, coreStrengths, education, experience, languages, learningTopics, skillGroups } from "@/lib/profile";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
-const skills = ["HTML", "CSS", "JAVASCRIPT", "TYPESCRIPT", "REACT", "NEXT.JS", "BOOTSTRAP", "GIT"];
-const sectionIds = ["home", "about", "work", "skills", "contact"];
+const skills = skillGroups.flatMap((group) => group.items.map((skill) => ({ skill, group: group.label })));
+const sectionIds = ["home", "about", "work", "skills", "experience", "contact", "view-me"];
 
 const reveal = {
   initial: { opacity: 0, y: 36 },
@@ -29,32 +31,18 @@ function SparkIcon() {
   return <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 1c0 12-7 19-19 19 12 0 19 7 19 19 0-12 7-19 19-19C27 20 20 13 20 1Z" /></svg>;
 }
 
-function ProjectArtwork({ variant }: { variant: string }) {
-  if (variant === "commerce") {
-    return (
-      <div className="artwork commerce-art" aria-hidden="true">
-        <div className="browser-bar"><i /><i /><i /></div>
-        <div className="product-orbit orbit-one" /><div className="product-orbit orbit-two" />
-        <div className="shoe-shape"><span /></div>
-        <div className="art-copy"><small>NEW DROP</small><strong>01</strong></div>
-      </div>
-    );
-  }
-  if (variant === "portfolio") {
-    return (
-      <div className="artwork portfolio-art" aria-hidden="true">
-        <div className="poster poster-back">CREATE</div>
-        <div className="poster poster-front"><span>Korng</span><strong>PORTFOLIO</strong><small>DESIGN × CODE</small></div>
-        <div className="cross-mark">+</div>
-      </div>
-    );
-  }
+function ProjectArtwork({ project }: { project: Project }) {
   return (
-    <div className="artwork api-art" aria-hidden="true">
-      <div className="data-sphere" />
-      <div className="data-card data-card-a"><span>API</span><strong>200</strong></div>
-      <div className="data-card data-card-b"><span>DATA</span><b /><b /><b /></div>
-      <div className="data-line line-a" /><div className="data-line line-b" />
+    <div className={`artwork project-shot-art project-shot-${project.className}`}>
+      <Image
+        className="project-shot-image"
+        src={project.image}
+        alt={project.imageAlt}
+        fill
+        sizes="(max-width: 900px) 92vw, 58vw"
+      />
+      <div className="project-shot-chrome" aria-hidden="true"><i /><i /><i /><span>{project.category}</span></div>
+      <div className="project-shot-overlay" aria-hidden="true"><small>LIVE PROJECT</small><strong>{project.number}</strong></div>
     </div>
   );
 }
@@ -620,8 +608,8 @@ export default function PortfolioExperience() {
       <canvas className="cursor-trail" aria-hidden="true" />
       <div className="cursor-pointer" aria-hidden="true"><span /><i /></div>
       <header className="site-header">
-        <a className="brand" href="#home" aria-label="Sophy Mengkorng home" data-section-target="home">KORNG<span>G</span></a>
-        <nav aria-label="Main navigation"><a href="#about" data-section-target="about">About</a><a href="#work" data-section-target="work">Work</a><a href="#skills" data-section-target="skills">Skills</a></nav>
+        <a className="brand" href="#home" aria-label="Sophy Mengkorng home" data-section-target="home">KORN<span>G</span></a>
+        <nav aria-label="Main navigation"><a href="#home" data-section-target="home">Home</a><a href="#about" data-section-target="about">About</a><Link href="/projects">Projects</Link><a href="#experience" data-section-target="experience">Experience</a><a href="#view-me" data-section-target="view-me">View Me</a></nav>
         <a className="nav-cta" href="#contact" data-section-target="contact">Let&apos;s talk <ArrowIcon /></a>
       </header>
 
@@ -647,22 +635,28 @@ export default function PortfolioExperience() {
             </div>
           </div>
           <div className="hero-orb orb-left" /><div className="hero-orb orb-right" />
-          <p className="eyebrow hero-eyebrow">Frontend developer · Phnom Penh</p>
-          <div className="hero-heading" aria-label="Sophy Mengkorng, Creative Developer">
+          <p className="eyebrow hero-eyebrow">Frontend developer · MIS student · Phnom Penh</p>
+          <div className="hero-heading" aria-label="Sophy Mengkorng, Junior Developer">
             <span className="hero-kicker">SOPHY MENGKORNG</span>
-            <h1>CREATIVE<em>DEVELOPER</em></h1>
+            <h1>Junior<em>DEVELOPER</em></h1>
           </div>
           <div className="hero-bottom">
-            <p>I turn ideas into thoughtful, Responsive interfaces—where clean code meets bold visual direction.</p>
+            <div className="hero-intro">
+              <p>I build thoughtful, Responsive web experiences while studying Management Information Systems at SETEC Institute.</p>
+              <div className="hero-actions">
+                <a href="#work">View projects</a>
+                <a href="#contact">Contact me</a>
+              </div>
+            </div>
             <a href="#work" className="round-link" aria-label="View selected work">
-              <span className="round-link-index">03</span>
+              <span className="round-link-index">02</span>
               <span className="round-link-label">VIEW<br />SELECTED<br />WORK</span>
               <span className="round-link-arrow"><ArrowIcon /></span>
               <span className="round-link-dot" />
             </a>
             <span className="availability"><i /> Available for opportunities</span>
           </div>
-          <div className="vertical-note">PORTFOLIO · 2026</div><div className="hero-index">01 / 05</div>
+          <div className="vertical-note">PORTFOLIO · 2026</div><div className="hero-index">01 / 08</div>
         </section>
 
         <div className="marquee" aria-hidden="true"><div className="marquee-track">
@@ -700,9 +694,9 @@ export default function PortfolioExperience() {
             </motion.div>
             <div className="about-copy">
               <span className="big-number">02</span>
-              <p className="lead-copy">I&apos;m a Management Information Systems student who enjoys the space where <strong>Technology, Design, And people</strong> meet.</p>
-              <p>My focus is frontend engineering and UI design—creating digital experiences that feel useful, Visually engaging, And considered at every screen size. I&apos;m always learning, Solving, And refining.</p>
-              <div className="about-meta"><div><small>BASED IN</small><span>Phnom Penh, Cambodia</span></div><div><small>FOCUS</small><span>Frontend & UI Design</span></div></div>
+              <p className="lead-copy">I&apos;m a Management Information Systems student at <strong>SETEC Institute</strong> who enjoys turning ideas into useful digital products.</p>
+              <p>My focus is frontend engineering and interface design. I&apos;m currently developing my knowledge through advanced web development, C# programming, Networking, Database server applications, And multimedia design while continuing to build with Next.js, Angular, Supabase, And APIs. My goal is to become a capable software and information-systems professional who creates practical real-world solutions.</p>
+              <div className="about-meta"><div><small>BASED IN</small><span>Russey Keo, Phnom Penh</span></div><div><small>OPEN TO</small><span>Internships & collaborations</span></div></div>
             </div>
           </div>
         </section>
@@ -712,25 +706,100 @@ export default function PortfolioExperience() {
           <div className="project-list">
             {projects.map((project, index) => (
               <article className={`project-row project-${project.className} ${index % 2 ? "project-reverse" : ""}`} key={project.number}>
-                <div className="project-art-wrap"><ProjectArtwork variant={project.className} /><span className="art-scanline" aria-hidden="true" /><span className="project-count">{project.number}</span></div>
-                <div className="project-copy"><p className="eyebrow">{project.type}</p><h3>{project.title.split("\n").map((line) => <span key={line}>{line}</span>)}</h3><p>{project.description}</p><div className="tag-list">{project.technologies.map((technology) => <span key={technology}>{technology}</span>)}</div><div className="project-links"><Link href={`/projects/${project.slug}`} className="case-link" aria-label={`View ${project.title.replace("\n", " ")} case study`}>Case study <ArrowIcon /></Link>{project.liveUrl && <a href={project.liveUrl} className="case-link case-link-live" target="_blank" rel="noopener noreferrer" aria-label={`Open ${project.title.replace("\n", " ")} live website in a new tab`}>View Project <span aria-hidden="true">↗</span></a>}</div></div>
+                <div className="project-art-wrap"><ProjectArtwork project={project} /><span className="art-scanline" aria-hidden="true" /><span className="project-count">{project.number}</span></div>
+                <div className="project-copy"><p className="eyebrow">{project.type}</p><h3>{project.title.split("\n").map((line) => <span key={line}>{line}</span>)}</h3><p>{project.description}</p><p className="project-role"><strong>ROLE</strong> {project.role}</p><div className="tag-list">{project.technologies.map((technology) => <span key={technology}>{technology}</span>)}</div><div className="project-links"><Link href={`/projects/${project.slug}`} className="case-link" aria-label={`View ${project.shortTitle} case study`}>Case study <ArrowIcon /></Link><a href={project.liveUrl} className="case-link case-link-live" target="_blank" rel="noopener noreferrer">Live Demo <span aria-hidden="true">↗</span></a><a href={project.sourceUrl} className="case-link case-link-live" target="_blank" rel="noopener noreferrer">Source Code <span aria-hidden="true">↗</span></a></div></div>
               </article>
             ))}
           </div>
+          <div className="all-projects-link"><Link href="/projects">Explore all projects <ArrowIcon /></Link></div>
         </section>
 
         <section className="skills" id="skills"><div className="skills-inner section-wrap">
           <div className="section-heading"><p className="eyebrow">03 / Skills & tools</p><h2>The toolkit behind<br /><span>the interface.</span></h2></div>
-          <div className="skills-grid">{skills.map((skill, index) => <div className="skill-cell" key={skill}><span>{String(index + 1).padStart(2, "0")}</span><strong>{skill}</strong><i>↗</i></div>)}</div>
+          <div className="skills-grid">{skills.map(({ skill, group }, index) => <div className="skill-cell" key={skill}><span>{String(index + 1).padStart(2, "0")} / {group}</span><strong>{skill}</strong><i>↗</i></div>)}</div>
         </div></section>
 
+        <section className="growth section-wrap" aria-labelledby="growth-title">
+          <div className="section-heading"><p className="eyebrow">04 / Growth & direction</p><h2 id="growth-title">Learning with<br /><span>clear direction.</span></h2></div>
+          <div className="growth-grid">
+            <motion.article className="growth-card learning-card" {...reveal}>
+              <div className="growth-card-heading"><span>01</span><p>CURRENTLY LEARNING</p></div>
+              <h3>Building stronger technical foundations.</h3>
+              <div className="learning-cloud">{learningTopics.map((topic) => <span key={topic}>{topic}</span>)}</div>
+            </motion.article>
+
+            <motion.article className="growth-card language-card" {...reveal}>
+              <div className="growth-card-heading"><span>02</span><p>LANGUAGES</p></div>
+              <div className="language-list">{languages.map((language) => (
+                <div className="language-item" key={language.name}>
+                  <div><strong>{language.name}</strong><span>{language.level}</span></div>
+                  <div className="language-track"><i style={{ width: `${language.progress}%` }} /></div>
+                </div>
+              ))}</div>
+            </motion.article>
+
+            <motion.article className="growth-card career-card" {...reveal}>
+              <div className="growth-card-heading"><span>03</span><p>CAREER GOAL</p></div>
+              <blockquote>To become a skilled software and information-systems professional who designs reliable technology solutions with meaningful real-world impact.</blockquote>
+              <div className="career-interests">{careerInterests.map((interest) => <span key={interest}>{interest}</span>)}</div>
+            </motion.article>
+
+            <motion.article className="growth-card strengths-card" {...reveal}>
+              <div className="growth-card-heading"><span>04</span><p>CORE STRENGTHS</p></div>
+              <ul>{coreStrengths.map((strength) => <li key={strength}>{strength}<i>↗</i></li>)}</ul>
+            </motion.article>
+          </div>
+        </section>
+
+        <section className="journey section-wrap" id="experience">
+          <div className="section-heading"><p className="eyebrow">05 / Experience & education</p><h2>Learning through<br /><span>work & study.</span></h2></div>
+          <div className="journey-grid">
+            <div className="journey-column">
+              <p className="journey-label">EXPERIENCE</p>
+              {experience.map((item) => <motion.article className="timeline-card" key={item.title} {...reveal}><span>{item.period}</span><h3>{item.title}</h3><h4>{item.organization}</h4><p>{item.description}</p><div className="tag-list">{item.tags.map((tag) => <span key={tag}>{tag}</span>)}</div></motion.article>)}
+            </div>
+            <div className="journey-column">
+              <p className="journey-label">EDUCATION</p>
+              {education.map((item) => (
+                <motion.article className="timeline-card" key={item.title} {...reveal}>
+                  <span>{item.period}</span>
+                  <h3>{item.title}</h3>
+                  <h4>{item.organization}</h4>
+                  {"level" in item && <p className="timeline-level">{item.level}</p>}
+                  <p>{item.description}</p>
+                  {"courses" in item && (
+                    <div className="course-list">
+                      <small>CURRENT COURSEWORK</small>
+                      <div>{item.courses.map((course) => <span key={course}>{course}</span>)}</div>
+                    </div>
+                  )}
+                </motion.article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="achievements section-wrap" aria-labelledby="achievements-title">
+          <div className="section-heading"><p className="eyebrow">06 / Certifications & achievements</p><h2 id="achievements-title">Progress worth<br /><span>building on.</span></h2></div>
+          <div className="achievement-grid">{achievements.map((item) => <motion.article className="achievement-card" key={item.number} {...reveal}><span>{item.number}</span><h3>{item.title}</h3><p>{item.detail}</p></motion.article>)}</div>
+          <p className="achievement-note">Certificate verification links can be added when digital certificate URLs are available.</p>
+        </section>
+
         <section className="contact section-wrap" id="contact"><div className="contact-card">
-          <div className="contact-topline"><p className="eyebrow">04 / Let&apos;s make something</p><span><i /> Available for opportunities</span></div>
+          <div className="contact-topline"><p className="eyebrow">07 / Let&apos;s make something</p><span><i /> Available for opportunities</span></div>
           <div className="contact-star"><SparkIcon /></div>
           <h2>HAVE AN IDEA?<br /><span>LET&apos;S BUILD IT.</span></h2>
-          <div className="contact-bottom"><p>I&apos;m open to internships, Collaborations, And meaningful frontend projects.</p><a className="contact-button" href="https://www.facebook.com/sophymengkorng168">Start a conversation <ArrowIcon /></a></div>
+          <div className="contact-bottom"><div><p>I&apos;m open to internships, Collaborations, And meaningful frontend projects. If you have an opportunity or idea, I&apos;d be happy to hear from you.</p><div className="contact-links">{contactLinks.map((link) => <a href={link.href} key={link.label} target={link.href.startsWith("http") ? "_blank" : undefined} rel={link.href.startsWith("http") ? "noopener noreferrer" : undefined}><small>{link.label}</small><span>{link.value}</span></a>)}</div></div><a className="contact-button" href="mailto:sophymengkorng@gmail.com">Contact me <ArrowIcon /></a></div>
           <div className="contact-orbit orbit-contact-one" /><div className="contact-orbit orbit-contact-two" />
         </div></section>
+
+        <section className="view-me section-wrap" id="view-me">
+          <div className="view-me-heading">
+            <div className="section-heading"><p className="eyebrow">08 / View me</p><h2>Moments beyond<br /><span>the screen.</span></h2></div>
+            <div className="view-me-intro"><span>09 / FRAMES</span><p>A visual journal of campus life, Heritage, And the moments that shape who I am beyond development.</p><small>SELECT A FRAME TO EXPLORE</small></div>
+          </div>
+          <ViewMeGallery />
+        </section>
       </main>
 
       <footer><a className="brand" href="#home" aria-label="Back to top">KORN<span>G</span></a><p>Designed & developed by Sophy Mengkorng</p><a className="footer-top" href="#home">Back to top <span>↑</span></a></footer>

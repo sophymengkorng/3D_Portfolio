@@ -20,7 +20,7 @@ export default function AnimatedHero() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
             >
-              Hello, welcome to my portfolio
+              Hello, Welcome to my portfolio
             </motion.p>
 
             <h1 className="display-2 fw-bold">
@@ -29,7 +29,7 @@ export default function AnimatedHero() {
             </h1>
 
             <p className="lead text-secondary mt-4">
-              I design and build modern, responsive digital experiences.
+              I design and build modern, Responsive digital experiences.
             </p>
 
             <motion.a
