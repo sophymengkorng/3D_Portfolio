@@ -18,15 +18,11 @@ export const site = {
   socials: ["https://www.facebook.com/sophymengkorng168"],
   keywords: [
     "Sophy Mengkorng",
-    "frontend developer",
-    "frontend developer Cambodia",
-    "web developer Phnom Penh",
-    "React developer",
-    "Next.js developer",
-    "TypeScript developer",
-    "UI design",
-    "portfolio",
-    "Management Information Systems",
+    "sophymengkorng",
+    "Sophy mengkorng",
+    "sophymengkorngportfolio",
+    "sophymengkorng.com",
+    "portfoliosophymengkorng",
   ],
 } as const;
 
