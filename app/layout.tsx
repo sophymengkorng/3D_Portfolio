@@ -1,15 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { Poppins } from "next/font/google";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "@fontsource/poppins/latin.css";
 import "./globals.css";
+import CursorEffect from "@/components/CursorEffect";
 import { site, siteUrl } from "@/lib/site";
-
-const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800", "900"],
-  variable: "--font-poppins",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -126,8 +120,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={poppins.variable} data-scroll-behavior="smooth">
+    <html lang="en" data-scroll-behavior="smooth">
       <body>
+        <CursorEffect />
         {children}
         <script
           type="application/ld+json"

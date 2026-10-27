@@ -54,7 +54,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
             KORN<span style={{ color: "#dc43ff" }}>G</span>
           </div>
           <div style={{ display: "flex", fontSize: 19, letterSpacing: 5, color: "#aaa2af" }}>
-            {project ? `${project.number} / CASE STUDY` : "CASE STUDY"}
+            {project ? `${project.number} / VIEW DETAILS` : "VIEW DETAILS"}
           </div>
         </div>
 

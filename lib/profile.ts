@@ -1,9 +1,8 @@
 export const skillGroups = [
   { label: "Frontend", items: ["HTML", "CSS", "JavaScript", "TypeScript", "React", "Next.js", "Angular"] },
   { label: "Programming", items: ["C#", "C++", "Python"] },
-  { label: "UI & Data", items: ["Bootstrap", "Responsive Design", "REST API", "Supabase", "JSON"] },
+  { label: "UI & Data", items: ["Bootstrap", "Responsive Design"] },
   { label: "Tools", items: ["Git", "GitHub", "VS Code", "Vercel", "Figma"] },
-  { label: "Productivity", items: ["Microsoft Word", "Microsoft PowerPoint", "Microsoft Excel", "Microsoft Access"] },
 ] as const;
 
 export const learningTopics = [
@@ -87,16 +86,6 @@ export const achievements = [
     number: "01",
     title: "Academic English Program",
     detail: "Completed the Intensive English for Academic Purposes program at PUC in 2025.",
-  },
-  {
-    number: "02",
-    title: "Student Management System",
-    detail: "Built a Python and JSON application for creating, Retrieving, Updating, And organizing student records.",
-  },
-  {
-    number: "03",
-    title: "Bank Account System",
-    detail: "Created a C++ program for account creation, Deposits, Withdrawals, Transfers, And balance management.",
   },
 ] as const;
 

@@ -9,11 +9,6 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
-        source: "/projects/personal-portfolio",
-        destination: "/projects/3d-portfolio",
-        permanent: true,
-      },
-      {
         source: "/projects/api-integration",
         destination: "/projects/student-classwork-automation",
         permanent: true,

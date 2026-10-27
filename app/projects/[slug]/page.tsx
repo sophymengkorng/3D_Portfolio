@@ -96,7 +96,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
       <section className="case-hero">
         <div className="case-hero-grid" aria-hidden="true" />
-        <p className="eyebrow">{project.number} / Case study</p>
+        <p className="eyebrow">{project.number} / View Details</p>
         <h1>{project.title.split("\n").map((line) => <span key={line}>{line}</span>)}</h1>
         <div className="case-summary">
           <p>{project.description}</p>
@@ -110,7 +110,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
       </section>
 
       <section className="case-screenshot section-wrap">
-        <div className="case-screenshot-frame">
+        <div className={`case-screenshot-frame case-screenshot-${project.className}`}>
           <Image src={project.image} alt={project.imageAlt} fill priority sizes="(max-width: 900px) 94vw, 1180px" />
         </div>
       </section>

@@ -59,7 +59,7 @@ export default function ProjectsIndex() {
               layout
               key={project.slug}
             >
-              <Link className="project-grid-image" href={`/projects/${project.slug}`} aria-label={`Read the ${project.shortTitle} case study`}>
+              <Link className={`project-grid-image project-grid-image-${project.className}`} href={`/projects/${project.slug}`} aria-label={`Read the ${project.shortTitle} case study`}>
                 <Image src={project.image} alt={project.imageAlt} fill sizes="(max-width: 760px) 92vw, 46vw" />
                 <span>{project.number}</span>
               </Link>
@@ -69,8 +69,8 @@ export default function ProjectsIndex() {
                 <p>{project.description}</p>
                 <div className="tag-list">{project.technologies.map((technology) => <span key={technology}>{technology}</span>)}</div>
                 <div className="project-grid-actions">
-                  <Link href={`/projects/${project.slug}`}>Case Study <ArrowIcon /></Link>
-                  <a href={project.liveUrl} target="_blank" rel="noopener noreferrer">Live Demo <span>↗</span></a>
+                  <Link href={`/projects/${project.slug}`}>View Details <ArrowIcon /></Link>
+                  <a href={project.liveUrl} target="_blank" rel="noopener noreferrer">View Project<span>↗</span></a>
                   <a href={project.sourceUrl} target="_blank" rel="noopener noreferrer">Source Code <span>↗</span></a>
                 </div>
               </div>
